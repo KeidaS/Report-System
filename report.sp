@@ -65,11 +65,11 @@ public Action:Report(int client, int args) {
 				client,
 				target_list,
 				MAXPLAYERS,
-				COMMAND_FILTER_CONNECTED,
+				COMMAND_FILTER_NO_IMMUNITY,
 				target_name,
 				sizeof(target_name),
 				tn_is_ml);
-		if (target_count < 1) {
+		if (target_count <= 0) {
 			PrintToChat(client, "No hay ningún usuario con ese nombre");
 			return Plugin_Handled;
 		} else if (target_count == 1) {
@@ -78,7 +78,7 @@ public Action:Report(int client, int args) {
 				char name1[64];
 				GetClientName(target_list[0], name1, sizeof(name1));
 				GetClientName(client, name, sizeof(name));
-				PrintToChatAll("%s ha reportado a %s. Motivo: %s", name, name1, arguments[len]);
+				PrintToChatAll("\x02 \x02 %s \x02 ha \x02 reportado \x02 a \x02 %s \x02 por \x02 %s", name, name1, arguments[len]);
 				Format(query, sizeof(query), "INSERT INTO reports VALUES ('%i', '%s', '%s', '%s', 'null')", reportId, name, name1, arguments[len]);
 				SQL_TQuery(db, InsertReportCallback, query, _);
 				return Plugin_Continue;	
@@ -134,7 +134,7 @@ public int MenuHandler_ReasonMenu(Menu menu, MenuAction action, int param1, int 
 		menu.GetItem(param2, info, sizeof(info));
 		GetMenuItem(menu, 6, name1, sizeof(name1));
 		GetClientName(param1, name, sizeof(name));
-		PrintToChatAll("%s ha reportado a %s por %s", name, name1, info);
+		PrintToChatAll("\x02 \x02 %s \x02 ha \x02 reportado \x02 a \x02 %s \x02 por \x02 %s", name, name1, info);
 		Format(query, sizeof(query), "INSERT INTO reports VALUES ('%i', '%s', '%s', '%s', 'null')", reportId, name, name1, info);
 		SQL_TQuery(db, InsertReportCallback, query, _);
 	}
@@ -193,7 +193,7 @@ public void ReportsCallback(Handle owner, Handle hndl, char[] error, any data) {
 				Format(item, sizeof(item), "%i %s ha reportado a %s por %s", id, name, name1, reason);
 				menu.AddItem(item, item);
 			} else {
-				Format(item, sizeof(item), "%i %s ha reportado a %s por %s [ %s ]", name, name1, reason, admin);
+				Format(item, sizeof(item), "%i %s ha reportado a %s por %s [ %s ]", id, name, name1, reason, admin);
 				AddMenuItem(menu, "Item", item, ITEMDRAW_DISABLED);
 			}
 		}
@@ -244,6 +244,7 @@ public void AttendReportCallback(Handle owner, Handle hndl, char[] error, any da
 		LogError("%i", error);
 	}
 }
+
 /*
 public Action:ExitReport(int client, int args) {
 	if (args < 1) {
@@ -310,3 +311,4 @@ public void SolveReportCallback(Handle owner, Handle hndl, char[] error, any dat
 		}
 	}
 }*/
+
